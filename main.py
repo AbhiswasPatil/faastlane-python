@@ -1,7 +1,6 @@
 from worker import Worker
 from function import Function
 from package import Package
-from consistentHash import ConsistentHash
 from paSch import PaSch
 
 
@@ -26,32 +25,32 @@ def main():
     fn = [{
         "function_id": "foo",
         "function_imports": ["p0", "p1"],
-        "exec_time": 10
+        "package_size": 10
     }, {
         "function_id": "bar",
         "function_imports": ["p0", "p2"],
-        "exec_time": 15
+        "package_size": 15
     }, {
         "function_id": "par",
         "function_imports": ["p1", "p2"],
-        "exec_time": 20
+        "package_size": 20
     }]
 
     global_fn = []
     for x in fn:
         global_fn.append(
-            Function(x["function_id"], x["function_imports"], x["exec_time"]))
+            Function(x["function_id"], x["function_imports"], x["package_size"]))
 
     # list of packages
 
-    pkgs = [{"package_id": "p0", "exec_time": 3},
-            {"package_id": "p1", "exec_time": 4},
-            {"package_id": "p2", "exec_time": 5}]
+    pkgs = [{"package_id": "p0", "package_size": 3},
+            {"package_id": "p1", "package_size": 4},
+            {"package_id": "p2", "package_size": 5}]
 
     global_pkgs = []
     for x in pkgs:
         global_pkgs.append(
-            Package(x["package_id"], x["exec_time"])
+            Package(x["package_id"], x["package_size"])
         )
 
     # fn execution instruction

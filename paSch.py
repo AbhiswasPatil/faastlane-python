@@ -79,7 +79,7 @@ class PaSch:
             index_of_chosen_node_to_run=self.getIndexInWorkersArray(chosen_node_to_run)
         
         # DO: what if least loaded is also crossing threshhold ??
-        
+
         # all clear till here
 
 
@@ -110,7 +110,7 @@ class PaSch:
 
         #updating the changes in object
         self.workers = workerNodes
-        print({"",workerNodes[index_of_chosen_node_to_run].worker_id})
+        # print({"",workerNodes[index_of_chosen_node_to_run].worker_id})
         return {"",workerNodes[index_of_chosen_node_to_run].worker_id}
 
 

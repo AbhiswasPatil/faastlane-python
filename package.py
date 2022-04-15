@@ -1,5 +1,5 @@
 
 class Package:
-    def __init__(self, package_id, exec_time):
+    def __init__(self, package_id, package_size):
         self.package_id = package_id
-        self.exec_time = exec_time
+        self.package_size = package_size
