@@ -26,9 +26,13 @@ class ConsistentHash :
 
     def getWorker(self,package_id):
         worker = self.hr.get_node(package_id)
+        print("getworker : ",worker)
         # if there are no workers then return err
         if(worker == None):
             return {"No worker can be chosen, add worker to execute the lambda",None}
         else :
             return {"",worker}
+
+
+
 

@@ -5,7 +5,7 @@ class Function :
         self.exec_time = exec_time
     
     def getLargestPackage(self) :
-        if(len(self.packages)) :
-            return {"",self.packages[0]}
-        return {"Do not Have any packages to import from lambda : ",self.lambda_id}
+        if(len(self.function_imports)) :
+            return {"",self.function_imports[0]}
+        return {"Do not Have any packages to import from lambda : ",None}
         
