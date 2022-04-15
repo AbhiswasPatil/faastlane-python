@@ -1,3 +1,3 @@
-threshhold = 3
-catcheCleanTime = 15
+threshhold = 1 #threshhold is initialised in the Pasch itself so change there
+cacheCleanTime = 15
 salt = "123"

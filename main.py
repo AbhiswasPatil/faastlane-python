@@ -4,6 +4,7 @@ from package import Package
 from consistentHash import ConsistentHash
 from paSch import PaSch
 
+
 def main():
     # list of workers
 
@@ -18,7 +19,7 @@ def main():
         global_hashworkers.append(x["worker_id"])
 
     # bhai implement karna consistent hash idhar
-    print(global_workers)
+    # print(global_workers)
 
     # list of fn
 
@@ -61,26 +62,27 @@ def main():
                {"fid:": "bar", "timestamp": 2}
                ]
 
-    #now we have all our inputs ready, create instance of scheduler intitalise the scheduler
-    scheduler = PaSch(global_hashworkers,global_workers,global_fn,global_pkgs)
-    print(scheduler.assignWorker("foo",1))
-    print(scheduler.assignWorker("foo",2))
-    print(scheduler.assignWorker("bar",2))
-    print(scheduler.assignWorker("bar",3))
-    print(scheduler.assignWorker("foo",1))
-    print(scheduler.assignWorker("foo",2))
-    print(scheduler.assignWorker("par",2))
-    print(scheduler.assignWorker("par",3))
-    print(scheduler.assignWorker("bar",1))
-    print(scheduler.assignWorker("foo",2))
-    print(scheduler.assignWorker("par",2))
-    print(scheduler.assignWorker("bar",3))
+    # now we have all our inputs ready, create instance of scheduler intitalise the scheduler
+    scheduler = PaSch(global_hashworkers, global_workers,
+                      global_fn, global_pkgs)
+    print(scheduler.assignWorker("foo", 1))
+    print(scheduler.assignWorker("foo", 2))
+    print(scheduler.assignWorker("bar", 2))
+    print(scheduler.assignWorker("bar", 3))
+    print(scheduler.assignWorker("foo", 1))
+    print(scheduler.assignWorker("foo", 2))
+    print(scheduler.assignWorker("par", 2))
+    print(scheduler.assignWorker("par", 3))
+    print(scheduler.assignWorker("bar", 1))
+    print(scheduler.assignWorker("foo", 2))
+    print(scheduler.assignWorker("par", 2))
+    print(scheduler.assignWorker("bar", 3))
 
-
-    #send requests from here
-    #DO : for x in fn_inst
+    # send requests from here
+    # DO : for x in fn_inst
 
     scheduler.getWorkerDetails()
+
 
 if __name__ == "__main__":
     main()
