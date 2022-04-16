@@ -1,3 +1,4 @@
+from sqlite3 import Timestamp
 from worker import Worker
 from function import Function
 from package import Package
@@ -25,21 +26,21 @@ def main():
     fn = [{
         "function_id": "foo",
         "function_imports": ["p0", "p1"],
-        "package_size": 10
+        "function_size": 10
     }, {
         "function_id": "bar",
         "function_imports": ["p0", "p2"],
-        "package_size": 15
+        "function_size": 15
     }, {
         "function_id": "par",
         "function_imports": ["p1", "p2"],
-        "package_size": 20
+        "function_size": 20
     }]
 
     global_fn = []
     for x in fn:
         global_fn.append(
-            Function(x["function_id"], x["function_imports"], x["package_size"]))
+            Function(x["function_id"], x["function_imports"], x["function_size"]))
 
     # list of packages
 
@@ -65,22 +66,15 @@ def main():
     scheduler = PaSch(global_hashworkers, global_workers,
                       global_fn, global_pkgs)
     print(scheduler.assignWorker("foo", 1))
-    print(scheduler.assignWorker("foo", 2))
-    print(scheduler.assignWorker("bar", 2))
-    print(scheduler.assignWorker("bar", 3))
-    print(scheduler.assignWorker("foo", 1))
-    print(scheduler.assignWorker("foo", 2))
-    print(scheduler.assignWorker("par", 2))
-    print(scheduler.assignWorker("par", 3))
-    print(scheduler.assignWorker("bar", 1))
-    print(scheduler.assignWorker("foo", 2))
-    print(scheduler.assignWorker("par", 2))
-    print(scheduler.assignWorker("bar", 3))
+    print(scheduler.assignWorker("foo", 3))
+    print(scheduler.assignWorker("foo", 5))
+    print(scheduler.assignWorker("foo", 6))
 
     # send requests from here
     # DO : for x in fn_inst
 
-    scheduler.getWorkerDetails()
+    # for getWorker Details create an option in while loop of inctructions to run it at a timestamp 
+    scheduler.getWorkerDetails(timestamp=9)
 
 
 if __name__ == "__main__":

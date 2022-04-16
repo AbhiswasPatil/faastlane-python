@@ -1,6 +1,7 @@
 #it will also have consistentHash, and will use it to access worker_id (consitentHash <-> workers)
 
 import math
+from sqlite3 import Timestamp
 import string
 from consistentHash import ConsistentHash
 from GLOBAL import *
@@ -20,11 +21,39 @@ class PaSch:
         self.functions = functions
         self.packages = packages
 
-    def getLoad(self, worker_id):
-        
-        for x in self.workers :
-            if(x.worker_id == worker_id):
-                return x.currentLoad
+    def getLoad(self, worker_id, timestamp):
+        workerNodes = self.workers
+
+        index = self.getIndexInWorkersArray(worker_id) #here self.workers == workerNodes hence ok
+
+        #here we will need to clear all the functions that have been executed at this worker.runningFunction and update the 
+        #worker.currentLoad as well which is just len(worker.runningFunction)
+        workerNodes[index].updateRuningFunctionsList(timestamp)
+        self.workers = workerNodes
+        return workerNodes[index].currentLoad
+
+
+    def getLeastLoadedWorker(self,timestamp):
+            #uses all keys in consistent Hash and gets min loaded
+            min_worker_id =""
+            min_worker_id_load = math.inf
+            for i in range(0,len(self.workers)) :
+                curr_load = self.getLoad(self.workers[i].worker_id,timestamp)
+                if(min_worker_id_load > curr_load) :
+                    min_worker_id_load = curr_load
+                    min_worker_id = self.workers[i].worker_id
+            
+            return min_worker_id
+
+    def getWorkerDetails(self,timestamp):
+        for i in range(0,len(self.workers)) :
+            print("worker_id:",self.workers[i].worker_id)
+            print("threshhold",self.workers[i].threshhold)
+            print("currentLoad",self.getLoad(self.workers[i].worker_id,timestamp)) #10000 is passed as time which is assumed to be infinite
+            # print(self.workers[i].cachedPackages)
+            print("functionsRunning",self.workers[i].runningFunctions)
+            print("NOT UPDATED WITH TIMESTAMP !!! lastExcecutedTime",self.workers[i].lastExcecutedTime)
+            print("\n:::::::\n")
 
     def getIndexInWorkersArray(self,worker_id):
         for i in range(0,len(self.workers)) :
@@ -52,17 +81,19 @@ class PaSch:
         function_object = self.functions[self.getIndexInFunctionsArray(function_id)]
 
         err, pkg = function_object.getLargestPackage()
-        # print(type(pkg))
+
+        package_object = self.packages[self.getIndexInPackagesArray(pkg)]
+        
         if(err!= "") :
-            print("No packages in function to run !!!")
+            print("No packages in function : ",function_id," to run !!!\n")
         
         # selectedWorker1,selectedWorker2 -> worker_id
         err1,selectedWorker1 = self.consitentHash.getWorker(pkg)
         err2,selectedWorker2 = self.consitentHash.getWorker(pkg+self.salt)
         print("Selected workers for function,",function_id,"are :",selectedWorker1,selectedWorker2)
 
-        load_1 = self.getLoad(selectedWorker1)
-        load_2 = self.getLoad(selectedWorker2)
+        load_1 = self.getLoad(selectedWorker1,timestamp)
+        load_2 = self.getLoad(selectedWorker2,timestamp)
         # print("load1 :",load_1)
         # print("load2 :",load_2)
 
@@ -74,8 +105,8 @@ class PaSch:
         chosen_node_to_run = chosen_power_of_two_node
         index_of_chosen_node_to_run = self.getIndexInWorkersArray(chosen_node_to_run) 
 
-        if(self.getLoad(chosen_power_of_two_node) >= self.threshhold ):
-            chosen_node_to_run = self.getLeastLoadedWorker() # returns worker_id
+        if(self.getLoad(chosen_power_of_two_node,timestamp) >= self.threshhold ):
+            chosen_node_to_run = self.getLeastLoadedWorker(timestamp) # returns worker_id
             index_of_chosen_node_to_run=self.getIndexInWorkersArray(chosen_node_to_run)
         
         # DO: what if least loaded is also crossing threshhold ??
@@ -89,17 +120,25 @@ class PaSch:
 
         # calculate if biggest package was hit or missed
 
+        finalTimeOfFunctionExecution = timestamp + function_object.function_size
+
         if(self.workers[index_of_chosen_node_to_run].lastExcecutedTime.get(pkg) == None) :
             # first time caching pkg
             print("First time importing on node :",self.workers[index_of_chosen_node_to_run].worker_id,"package: ",pkg)
+            #hence totalTimeOfFunctionExecution remains same
         elif(self.workers[index_of_chosen_node_to_run].lastExcecutedTime[pkg] + cacheCleanTime > timestamp) :
             print("CACHE HIT ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :", pkg)
+            #as cache is hit, we will remove largest packag's time from time of execution
+            finalTimeOfFunctionExecution -= package_object.package_size
         else :
             print("CACHE missed !!!! ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :",pkg)
-
+         
+        #DO : add the new function to execute in the worker.runningFunction list depending on cache hit or missed
+        workerNodes[index_of_chosen_node_to_run].runningFunctions.append({"finish_time":finalTimeOfFunctionExecution,
+                                                                        "function_id":function_object.function_id})
         
         #updating load
-        workerNodes[index_of_chosen_node_to_run].currentLoad += 1
+        workerNodes[index_of_chosen_node_to_run].currentLoad = len(workerNodes[index_of_chosen_node_to_run].runningFunctions)
 
         #updating the cache executed time for all imported packages including the biggest package
         # packages_imported contains array of package_id
@@ -107,7 +146,7 @@ class PaSch:
         for i in range(0,len(packages_imported)):
             workerNodes[index_of_chosen_node_to_run].lastExcecutedTime[packages_imported[i]] = timestamp
 
-
+       
         #updating the changes in object
         self.workers = workerNodes
         # print({"",workerNodes[index_of_chosen_node_to_run].worker_id})
@@ -115,31 +154,7 @@ class PaSch:
 
 
 
-    def getLeastLoadedWorker(self):
-        #uses all keys in consistent Hash and gets min loaded
-        min_worker_id =""
-        min_worker_id_load = math.inf
-        for i in range(0,len(self.workers)) :
-            if(min_worker_id_load >self.workers[i].currentLoad) :
-                min_worker_id_load = self.workers[i].currentLoad
-                min_worker_id = self.workers[i].worker_id
-        
-        return min_worker_id
 
-
-    def getLoad(self,worker_id):
-        #returns load of the worker
-        return self.workers[self.getIndexInWorkersArray(worker_id)].currentLoad
-
-
-    def getWorkerDetails(self):
-        for i in range(0,len(self.workers)) :
-            print("worker_id:",self.workers[i].worker_id)
-            print("threshhold",self.workers[i].threshhold)
-            print("currentLoad",self.workers[i].currentLoad)
-            # print(self.workers[i].cachedPackages)
-            print("lastExcecutedTime",self.workers[i].lastExcecutedTime)
-            print("\n:::::::\n")
 
 
 

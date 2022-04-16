@@ -1,8 +1,8 @@
 class Function:
-    def __init__(self, function_id, function_imports, package_size):
+    def __init__(self, function_id, function_imports, function_size):
         self.function_id = function_id
         self.function_imports = function_imports
-        self.package_size = package_size
+        self.function_size = function_size
 
     def getLargestPackage(self):
         if(len(self.function_imports)):

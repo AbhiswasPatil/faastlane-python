@@ -12,3 +12,15 @@ class Worker:
         self.lastExcecutedTime = {}
         # DO :self.threshhold = threshhold
         # DO : self.cacheCleanTime = cacheCleanTime
+        self.runningFunctions = [] #list containing {finish_time,function_id}
+
+    def updateRuningFunctionsList(self,timestamp):
+        functionsList = self.runningFunctions
+        updatedFunctionList = []
+        for x in functionsList:
+            if x["finish_time"] > timestamp :
+                updatedFunctionList.append(x)
+        
+        self.runningFunctions = updatedFunctionList
+        self.currentLoad = len(self.runningFunctions)
+
