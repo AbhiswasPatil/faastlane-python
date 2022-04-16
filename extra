@@ -15,7 +15,7 @@
         if(load_zero>load_one):
             chosen_power_of_two_node=worker_one
 
-        # DO: if currLoad(worker)>= threshhold(worker)
+        # DO: if currLoad(worker)>= threshold(worker)
         # get the least loaded 
         # else us it  
 

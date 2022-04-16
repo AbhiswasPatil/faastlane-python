@@ -15,7 +15,7 @@ class PaSch:
         self.consitentHash = ConsistentHash(hashworkers) #so now updates in hash are part of pasch so no worries
         
         self.salt = salt
-        self.threshhold = 1
+        self.threshold = 1
 
         self.workers = workers
         self.functions = functions
@@ -48,7 +48,7 @@ class PaSch:
     def getWorkerDetails(self,timestamp):
         for i in range(0,len(self.workers)) :
             print("worker_id:",self.workers[i].worker_id)
-            print("threshhold",self.workers[i].threshhold)
+            print("threshold",self.workers[i].threshold)
             print("currentLoad",self.getLoad(self.workers[i].worker_id,timestamp)) #10000 is passed as time which is assumed to be infinite
             # print(self.workers[i].cachedPackages)
             print("functionsRunning",self.workers[i].runningFunctions)
@@ -105,17 +105,17 @@ class PaSch:
         chosen_node_to_run = chosen_power_of_two_node
         index_of_chosen_node_to_run = self.getIndexInWorkersArray(chosen_node_to_run) 
 
-        if(self.getLoad(chosen_power_of_two_node,timestamp) >= self.threshhold ):
+        if(self.getLoad(chosen_power_of_two_node,timestamp) >= self.threshold ):
             chosen_node_to_run = self.getLeastLoadedWorker(timestamp) # returns worker_id
             index_of_chosen_node_to_run=self.getIndexInWorkersArray(chosen_node_to_run)
         
-        # DO: what if least loaded is also crossing threshhold ??
+        # DO: what if least loaded is also crossing threshold ??
 
         # all clear till here
 
 
         # increase its currentLoad, update caached packages, after all that update the workers array in Pasch
-        # self.workerId = worker_id , self.threshhold = threshhold, self.currentLoad = 0
+        # self.workerId = worker_id , self.threshold = threshold, self.currentLoad = 0
         # self.cachedPackages = [], self.lastExcecutedTime = {}
 
         # calculate if biggest package was hit or missed
