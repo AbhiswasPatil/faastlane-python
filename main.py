@@ -85,7 +85,10 @@ def main():
             case 2:
                 w_id = input("Enter worker id: ")
                 thres = int(input("Enter worker's threshold: "))
-                workers[w_id] = thres
+                for i, worker in enumerate(workers):
+                    if w_id  == worker["worker_id"]:
+                        worker["threshold"] = thres
+                        break
                 print("Worker {} successfully updated!".format(w_id))
             case 3:
                 w_id = input("Enter worker id: ")
