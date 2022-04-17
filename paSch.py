@@ -54,14 +54,43 @@ class PaSch:
             return min_worker_id
 
     def getWorkerDetails(self,timestamp):
-        for i in range(0,len(self.workers)) :
-            print("worker_id:",self.workers[i].worker_id)
-            print("threshold",self.workers[i].threshold)
-            print("currentLoad",self.getLoad(self.workers[i].worker_id,timestamp))
-            print("functionsRunning",self.workers[i].runningFunctions)
-            print("package cache is not cleaned !!! lastExcecutedTime",self.workers[i].lastExcecutedTime)
+        oldWorkerNodes = self.workers
+        workerNodes = self.updateStaleWorkerData(oldWorkerNodes,timestamp)
+        
+        for i in range(0,len(workerNodes)) :
+            print("worker_id:",workerNodes[i].worker_id)
+            print("threshold",workerNodes[i].threshold)
+            print("currentLoad",workerNodes[i].currentLoad)
+            print("functionsRunning",workerNodes[i].runningFunctions)
+            
+            print("lastExecutedTime",workerNodes[i].lastExecutedTime)
             print("\n:::::::\n")
-            return
+        
+        self.workers = workerNodes
+
+        return
+
+    def updateStaleWorkerData(self,workerNodes,timestamp):
+        
+        for i in range(0,len(workerNodes)) :
+            #updates current Load
+            workerNodes[i].currentLoad = self.getLoad(workerNodes[i].worker_id,timestamp)
+            # updates runningFunctions -> they are updated automatically when getLoad is called
+            # DO :updates lastExecutedTime
+            # {pid,time}
+            newLastExecutedTime = {}
+            for key in workerNodes[i].lastExecutedTime :
+                if(workerNodes[i].lastExecutedTime[key] + cacheCleanTime > timestamp) :
+                    #time to remove cached pkg is yet to come hence keep them as they are in the map
+                    newLastExecutedTime[key] = workerNodes[i].lastExecutedTime[key]
+                    print(key,"is previously run at", workerNodes[i].lastExecutedTime[key] )
+                    print("its included in new list as well")
+            
+            workerNodes[i].lastExecutedTime.clear()
+            workerNodes[i].lastExecutedTime.update(newLastExecutedTime)
+            print("for worker_id",workerNodes[i].worker_id,"it has",workerNodes[i].lastExecutedTime)
+
+        return workerNodes
 
     def getIndexInWorkersArray(self,worker_id):
         for i in range(0,len(self.workers)) :
@@ -145,18 +174,18 @@ class PaSch:
 
         # increase its currentLoad, update caached packages, after all that update the workers array in Pasch
         # self.workerId = worker_id , self.threshold = threshold, self.currentLoad = 0
-        # self.cachedPackages = [], self.lastExcecutedTime = {}
+        # self.cachedPackages = [], self.lastExecutedTime = {}
 
         # calculate if biggest package was hit or missed
 
         finalTimeOfFunctionExecution = timestamp + function_object.function_size
 
-        if(self.workers[index_of_chosen_node_to_run].lastExcecutedTime.get(pkg) == None) :
+        if(self.workers[index_of_chosen_node_to_run].lastExecutedTime.get(pkg) == None) :
             # first time caching pkg
             print("First time importing on node :",self.workers[index_of_chosen_node_to_run].worker_id,"package: ",pkg)
             #hence totalTimeOfFunctionExecution remains same
             self.cacheMiss = self.cacheMiss + 1
-        elif(self.workers[index_of_chosen_node_to_run].lastExcecutedTime[pkg] + cacheCleanTime > timestamp) :
+        elif(self.workers[index_of_chosen_node_to_run].lastExecutedTime[pkg] + cacheCleanTime > timestamp) :
             print("CACHE HIT ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :", pkg)
             #as cache is hit, we will remove largest packag's time from time of execution
             finalTimeOfFunctionExecution -= package_object.package_size
@@ -175,7 +204,7 @@ class PaSch:
         # packages_imported contains array of package_id
         packages_imported = self.functions[self.getIndexInFunctionsArray(function_id)].function_imports 
         for i in range(0,len(packages_imported)):
-            workerNodes[index_of_chosen_node_to_run].lastExcecutedTime[packages_imported[i]] = timestamp
+            workerNodes[index_of_chosen_node_to_run].lastExecutedTime[packages_imported[i]] = timestamp
 
        
         #updating the changes in object

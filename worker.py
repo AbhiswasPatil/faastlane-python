@@ -9,7 +9,7 @@ class Worker:
         self.currentLoad = 0
         self.cachedPackages = []
         # Dict which shows last executed time for a package on this worker node
-        self.lastExcecutedTime = {}
+        self.lastExecutedTime = {}
         # DO :self.threshold = threshold
         # DO : self.cacheCleanTime = cacheCleanTime
         self.runningFunctions = [] #list containing {finish_time,function_id}
