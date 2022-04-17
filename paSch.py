@@ -3,6 +3,8 @@
 import math
 from sqlite3 import Timestamp
 import string
+
+from requests import delete
 from consistentHash import ConsistentHash
 from GLOBAL import *
 from function import Function
@@ -15,11 +17,17 @@ class PaSch:
         self.consitentHash = ConsistentHash(hashworkers) #so now updates in hash are part of pasch so no worries
         
         self.salt = salt
-        self.threshold = 1
+        self.threshold = 3
 
         self.workers = workers
         self.functions = functions
         self.packages = packages
+        self.totalRequests = 0
+        self.cacheHits = 0
+        self.cacheMiss = 0
+
+    def getCacheHitAndMissDetails(self):
+        return {"totalRequests":self.totalRequests,"cacheHits":self.cacheHits,"cacheMiss":self.cacheMiss}
 
     def getLoad(self, worker_id, timestamp):
         workerNodes = self.workers
@@ -49,11 +57,11 @@ class PaSch:
         for i in range(0,len(self.workers)) :
             print("worker_id:",self.workers[i].worker_id)
             print("threshold",self.workers[i].threshold)
-            print("currentLoad",self.getLoad(self.workers[i].worker_id,timestamp)) #10000 is passed as time which is assumed to be infinite
-            # print(self.workers[i].cachedPackages)
+            print("currentLoad",self.getLoad(self.workers[i].worker_id,timestamp))
             print("functionsRunning",self.workers[i].runningFunctions)
-            print("NOT UPDATED WITH TIMESTAMP !!! lastExcecutedTime",self.workers[i].lastExcecutedTime)
+            print("package cache is not cleaned !!! lastExcecutedTime",self.workers[i].lastExcecutedTime)
             print("\n:::::::\n")
+            return
 
     def getIndexInWorkersArray(self,worker_id):
         for i in range(0,len(self.workers)) :
@@ -71,9 +79,30 @@ class PaSch:
             if(self.packages[i].package_id == package_id):
                 return i
 
+    def addWorker(self,worker) :
+        print("previous workers in total were :",len(self.workers))
+        workerNodes = self.workers
+        workerNodes.append(worker)
+        self.workers = workerNodes #added in PasCh
+        self.consitentHash.addWorker(worker.worker_id) #added in Consistent hash
+        print("total workers are now :".len(self.workers))
+    
+    def removeWorker(self,worker) :
+        print("previous workers in total were :",len(self.workers))
+        workerNodes = self.workers
+        newWorkerNodes = []
+        for x in workerNodes:
+            if(x.worker_id != worker.worker_id) :
+                newWorkerNodes.append(x)
+        
+        self.workers = newWorkerNodes #added in PasCh
+        self.consitentHash.removeWorker(worker.worker_id) #added in Consistent hash
+        print("total workers are now :".len(self.workers))
+
     def assignWorker(self,function_id,timestamp):
         
         workerNodes = self.workers
+        self.totalRequests = self.totalRequests + 1
 
         # if(len(workerNodes) == 0):
         #     return {"there are no worker nodes", None}
@@ -126,13 +155,15 @@ class PaSch:
             # first time caching pkg
             print("First time importing on node :",self.workers[index_of_chosen_node_to_run].worker_id,"package: ",pkg)
             #hence totalTimeOfFunctionExecution remains same
+            self.cacheMiss = self.cacheMiss + 1
         elif(self.workers[index_of_chosen_node_to_run].lastExcecutedTime[pkg] + cacheCleanTime > timestamp) :
             print("CACHE HIT ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :", pkg)
             #as cache is hit, we will remove largest packag's time from time of execution
             finalTimeOfFunctionExecution -= package_object.package_size
+            self.cacheHits = self.cacheHits + 1
         else :
             print("CACHE missed !!!! ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :",pkg)
-         
+            self.cacheMiss = self.cacheMiss + 1
         #DO : add the new function to execute in the worker.runningFunction list depending on cache hit or missed
         workerNodes[index_of_chosen_node_to_run].runningFunctions.append({"finish_time":finalTimeOfFunctionExecution,
                                                                         "function_id":function_object.function_id})

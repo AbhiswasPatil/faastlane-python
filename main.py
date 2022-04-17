@@ -1,11 +1,7 @@
-from sqlite3 import Timestamp
-
-from numpy import True_
 from worker import Worker
 from function import Function
 from package import Package
 from paSch import PaSch
-
 
 def main():
     # list of workers
@@ -70,10 +66,12 @@ def main():
     while True:
         print("\n")
         print("1. Add a new worker.")
-        print("2. Update an existing worker's threhold.")
+        print("2. Update an existing worker's threshold.")
         print("3. Remove a worker.")
         print("4. View all workers.")
         print("5. Execute a function")
+        print("6. Current state of system")
+        print("7. Cache hits and miss")
         print("0. Exit")
         print("\n")
         option = int(input("Choose an option: "))
@@ -99,13 +97,18 @@ def main():
                         del workers[i]
                 print("Worker {} successfully removed!".format(w_id))
             case 4:
-                print("Workers: ")
-                print(workers)
+                print("Workers: ",workers)
             case 5:
                 f_id = input("Enter the function id: ")
                 t_stamp = int(input("Enter the timestamp: "))
                 print(scheduler.assignWorker(f_id, t_stamp))
                 print("Function {} successfully executed!".format(f_id))
+            case 6:
+                t_stamp = int(input("Enter the timestamp: "))
+                scheduler.getWorkerDetails(t_stamp)
+            case 7: 
+                details = scheduler.getCacheHitAndMissDetails()
+                print(details)
             case 0: 
                 exit()
             case default:
@@ -128,7 +131,7 @@ def main():
     # DO : for x in fn_inst
 
     # for getWorker Details create an option in while loop of inctructions to run it at a timestamp 
-    scheduler.getWorkerDetails(timestamp=9)
+    #scheduler.getWorkerDetails(timestamp=9)
 
 
 if __name__ == "__main__":
