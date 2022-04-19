@@ -101,7 +101,8 @@ def main():
                 print("Function {} successfully executed!".format(f_id))
             case 8:
                 t_stamp = int(input("Enter the timestamp: "))
-                scheduler.getWorkerDetails(t_stamp)
+                workerDetails = scheduler.getWorkerDetails(t_stamp)
+                print(workerDetails)
             case 9:
                 details = scheduler.getCacheHitAndMissDetails()
                 print(details)

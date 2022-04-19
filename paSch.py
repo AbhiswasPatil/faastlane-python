@@ -57,18 +57,19 @@ class PaSch:
         oldWorkerNodes = self.workers
         workerNodes = self.updateStaleWorkerData(oldWorkerNodes,timestamp)
         
+        workerDetails = []
+
         for i in range(0,len(workerNodes)) :
-            print("worker_id:",workerNodes[i].worker_id)
-            print("threshold",workerNodes[i].threshold)
-            print("currentLoad",workerNodes[i].currentLoad)
-            print("functionsRunning",workerNodes[i].runningFunctions)
-            
-            print("lastExecutedTime",workerNodes[i].lastExecutedTime)
-            print("\n:::::::\n")
+            workerDetails.append({"worker_id:":workerNodes[i].worker_id,
+            "threshold":workerNodes[i].threshold,
+            "currentLoad":workerNodes[i].currentLoad,
+            "runningFunctions":workerNodes[i].runningFunctions,
+            "lastExecutedTime":workerNodes[i].lastExecutedTime,
+            })
         
         self.workers = workerNodes
 
-        return
+        return workerDetails
 
     def updateStaleWorkerData(self,workerNodes,timestamp):
         
@@ -83,12 +84,12 @@ class PaSch:
                 if(workerNodes[i].lastExecutedTime[key] + cacheCleanTime > timestamp) :
                     #time to remove cached pkg is yet to come hence keep them as they are in the map
                     newLastExecutedTime[key] = workerNodes[i].lastExecutedTime[key]
-                    print(key,"is previously run at", workerNodes[i].lastExecutedTime[key] )
-                    print("its included in new list as well")
+                    # print(key,"is previously run at", workerNodes[i].lastExecutedTime[key] )
+                    # print("its included in new list as well")
             
             workerNodes[i].lastExecutedTime.clear()
             workerNodes[i].lastExecutedTime.update(newLastExecutedTime)
-            print("for worker_id",workerNodes[i].worker_id,"it has",workerNodes[i].lastExecutedTime)
+            # print("for worker_id",workerNodes[i].worker_id,"it has",workerNodes[i].lastExecutedTime)
 
         return workerNodes
 
@@ -109,15 +110,15 @@ class PaSch:
                 return i
 
     def addWorker(self,worker) :
-        print("previous workers in total were :",len(self.workers))
+        # print("previous workers in total were :",len(self.workers))
         workerNodes = self.workers
         workerNodes.append(worker)
         self.workers = workerNodes #added in PasCh
         self.consitentHash.addWorker(worker.worker_id) #added in Consistent hash
-        print("total workers are now :".len(self.workers))
+        # print("total workers are now :".len(self.workers))
     
     def removeWorker(self,worker) :
-        print("previous workers in total were :",len(self.workers))
+        # print("previous workers in total were :",len(self.workers))
         workerNodes = self.workers
         newWorkerNodes = []
         for x in workerNodes:
@@ -126,7 +127,7 @@ class PaSch:
         
         self.workers = newWorkerNodes #added in PasCh
         self.consitentHash.removeWorker(worker.worker_id) #added in Consistent hash
-        print("total workers are now :".len(self.workers))
+        # print("total workers are now :".len(self.workers))
 
     def assignWorker(self,function_id,timestamp):
         
@@ -148,7 +149,7 @@ class PaSch:
         # selectedWorker1,selectedWorker2 -> worker_id
         err1,selectedWorker1 = self.consitentHash.getWorker(pkg)
         err2,selectedWorker2 = self.consitentHash.getWorker(pkg+self.salt)
-        print("Selected workers for function,",function_id,"are :",selectedWorker1,selectedWorker2)
+        # print("Selected workers for function,",function_id,"are :",selectedWorker1,selectedWorker2)
 
         load_1 = self.getLoad(selectedWorker1,timestamp)
         load_2 = self.getLoad(selectedWorker2,timestamp)
@@ -182,16 +183,16 @@ class PaSch:
 
         if(self.workers[index_of_chosen_node_to_run].lastExecutedTime.get(pkg) == None) :
             # first time caching pkg
-            print("First time importing on node :",self.workers[index_of_chosen_node_to_run].worker_id,"package: ",pkg)
+            # print("First time importing on node :",self.workers[index_of_chosen_node_to_run].worker_id,"package: ",pkg)
             #hence totalTimeOfFunctionExecution remains same
             self.cacheMiss = self.cacheMiss + 1
         elif(self.workers[index_of_chosen_node_to_run].lastExecutedTime[pkg] + cacheCleanTime > timestamp) :
-            print("CACHE HIT ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :", pkg)
+            # print("CACHE HIT ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :", pkg)
             #as cache is hit, we will remove largest packag's time from time of execution
             finalTimeOfFunctionExecution -= package_object.package_size
             self.cacheHits = self.cacheHits + 1
         else :
-            print("CACHE missed !!!! ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :",pkg)
+            # print("CACHE missed !!!! ON NODE :",self.workers[index_of_chosen_node_to_run].worker_id, "for package :",pkg)
             self.cacheMiss = self.cacheMiss + 1
         #DO : add the new function to execute in the worker.runningFunction list depending on cache hit or missed
         workerNodes[index_of_chosen_node_to_run].runningFunctions.append({"finish_time":finalTimeOfFunctionExecution,
