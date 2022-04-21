@@ -1,7 +1,7 @@
 #it will also have consistentHash, and will use it to access worker_id (consitentHash <-> workers)
 
 import math
-from sqlite3 import Timestamp
+
 import string
 
 from requests import delete
@@ -117,17 +117,17 @@ class PaSch:
         self.consitentHash.addWorker(worker.worker_id) #added in Consistent hash
         # print("total workers are now :".len(self.workers))
     
-    def removeWorker(self,worker) :
-        # print("previous workers in total were :",len(self.workers))
+    def removeWorker(self,worker_id) :
+        print("previous workers in total were :",len(self.workers))
         workerNodes = self.workers
         newWorkerNodes = []
         for x in workerNodes:
-            if(x.worker_id != worker.worker_id) :
+            if(x.worker_id != worker_id) :
                 newWorkerNodes.append(x)
         
         self.workers = newWorkerNodes #added in PasCh
-        self.consitentHash.removeWorker(worker.worker_id) #added in Consistent hash
-        # print("total workers are now :".len(self.workers))
+        self.consitentHash.removeWorker(worker_id) #added in Consistent hash
+        print("total workers are now :",len(self.workers))
 
     def assignWorker(self,function_id,timestamp):
         
