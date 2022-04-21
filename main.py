@@ -56,9 +56,9 @@ def main():
     while True:
         print("\n")
         print("1. Add a new worker.")
-        print("2. Update an existing worker's threshold.")
+        #print("2. Update an existing worker's threshold.")
         print("3. Remove a worker.")
-        print("4. View all workers.")
+        #print("4. View all workers.")
         print("5. View all functions in the registry.")
         print("6. View all packages in the registry.")
         print("7. Execute a function")
@@ -72,24 +72,27 @@ def main():
             case 1:
                 w_id = input("Enter worker id: ")
                 thres = int(input("Enter worker's threshold: "))
-                workers.append({"worker_id": w_id, "threshold": thres})
+                scheduler.addWorker(Worker(w_id,thres))
+
                 print("Worker {} successfully added!".format(w_id))
-            case 2:
-                w_id = input("Enter worker id: ")
-                thres = int(input("Enter worker's threshold: "))
-                for i, worker in enumerate(workers):
-                    if w_id == worker["worker_id"]:
-                        worker["threshold"] = thres
-                        break
-                print("Worker {} successfully updated!".format(w_id))
+            # case 2:
+                
+            #     w_id = input("Enter worker id: ")
+            #     thres = int(input("Enter worker's threshold: "))
+            #     for i, worker in enumerate(workers):
+            #         if w_id == worker["worker_id"]:
+            #             worker["threshold"] = thres
+            #             break
+            #     print("Worker {} successfully updated!".format(w_id))
             case 3:
                 w_id = input("Enter worker id: ")
-                for i, worker in enumerate(workers):
-                    if w_id == worker["worker_id"]:
-                        del workers[i]
-                print("Worker {} successfully removed!".format(w_id))
-            case 4:
-                print("Workers: ", workers)
+                # for i, worker in enumerate(workers):
+                #     if w_id == worker["worker_id"]:
+                #         del workers[i]
+                # print("Worker {} successfully removed!".format(w_id))
+                scheduler.removeWorker(w_id)
+            # case 4:
+            #     print("Workers: ", workers)
             case 5:
                 print("Functions: ", fn)
             case 6:
@@ -98,11 +101,11 @@ def main():
                 f_id = input("Enter the function id: ")
                 t_stamp = int(input("Enter the timestamp: "))
                 print(scheduler.assignWorker(f_id, t_stamp))
+                
                 print("Function {} successfully executed!".format(f_id))
             case 8:
                 t_stamp = int(input("Enter the timestamp: "))
-                workerDetails = scheduler.getWorkerDetails(t_stamp)
-                print(workerDetails)
+                print(scheduler.getWorkerDetails(t_stamp))
             case 9:
                 details = scheduler.getCacheHitAndMissDetails()
                 print(details)
@@ -110,26 +113,6 @@ def main():
                 exit()
             case default:
                 continue
-
-    # print(scheduler.assignWorker("foo", 1))
-    # print(scheduler.assignWorker("foo", 2))
-    # print(scheduler.assignWorker("bar", 2))
-    # print(scheduler.assignWorker("bar", 3))
-    # print(scheduler.assignWorker("foo", 1))
-    # print(scheduler.assignWorker("foo", 2))
-    # print(scheduler.assignWorker("par", 2))
-    # print(scheduler.assignWorker("par", 3))
-    # print(scheduler.assignWorker("bar", 1))
-    # print(scheduler.assignWorker("foo", 2))
-    # print(scheduler.assignWorker("par", 2))
-    # print(scheduler.assignWorker("bar", 3))
-
-    # send requests from here
-    # DO : for x in fn_inst
-
-    # for getWorker Details create an option in while loop of inctructions to run it at a timestamp
-    # scheduler.getWorkerDetails(timestamp=9)
-
 
 if __name__ == "__main__":
     main()
