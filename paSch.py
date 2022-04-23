@@ -17,7 +17,7 @@ class PaSch:
         self.consitentHash = ConsistentHash(hashworkers) #so now updates in hash are part of pasch so no worries
         
         self.salt = salt
-        self.threshold = 3
+        self.threshold = threshold
 
         self.workers = workers
         self.functions = functions

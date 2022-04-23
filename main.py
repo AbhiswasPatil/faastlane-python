@@ -117,7 +117,7 @@ def main():
             print(scheduler.assignWorker(fn_execution[i]["fid"],fn_execution[i]["timestamp"]))   
         
         print(scheduler.getCacheHitAndMissDetails())
-        print(scheduler.getWorkerDetails(fn_execution[-1]["timestamp"]))
+        # print(scheduler.getWorkerDetails(fn_execution[-1]["timestamp"]))
         
     
 
