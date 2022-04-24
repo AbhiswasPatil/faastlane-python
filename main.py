@@ -144,7 +144,7 @@ def main():
             
             CHR_calculation_time.append(curr_time)
             cacheObj = scheduler.getCacheHitAndMissDetails()
-            CHR_calculation_variable.append(cacheObj["cacheHits"]/cacheObj["totalRequests"])
+            CHR_calculation_variable.append(100*cacheObj["cacheHits"]/cacheObj["totalRequests"])
 
         
         print("FINAL CACHE HITS/MISS DETAILS:",scheduler.getCacheHitAndMissDetails())
@@ -155,12 +155,33 @@ def main():
         plt.ylabel('CDF value')
         plt.savefig('CDF.png')
 
+        
         plt.figure()
         plt.plot(CHR_calculation_time,CHR_calculation_variable)
         plt.title('CHR calculation')
         plt.xlabel('Time')
         plt.ylabel('CHR value')
         plt.savefig('CHR.png')
+
+        dict = {}
+        dict["time"] = CHR_calculation_time
+        dict["chr"] = CHR_calculation_variable 
+        with open("chr.json", "w") as outfile:
+            json.dump(dict, outfile)
+        
+        dict = {}
+        dict["time"] = CDF_calculation_time
+        dict["cdf"] = CDF_calculation_variable 
+        with open("cdf.json", "w") as outfile:
+            json.dump(dict, outfile)
+
+        dict = {}
+        dict["totalRequests"] = cacheObj["totalRequests"]
+        dict["cacheHits"] = cacheObj["cacheHits"]
+        dict["cacheMiss"] = cacheObj["cacheMiss"]
+        dict["leastLoadedCalls"] = cacheObj["LEASTLOADEDCALLS"]
+        with open("requestDetails.json", "w") as outfile:
+            json.dump(dict, outfile)
 
 if __name__ == "__main__":
     main()

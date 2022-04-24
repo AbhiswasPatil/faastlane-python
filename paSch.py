@@ -26,8 +26,10 @@ class PaSch:
         self.cacheHits = 0
         self.cacheMiss = 0
 
+        self.LEASTLOADEDCALLS = 0
+
     def getCacheHitAndMissDetails(self):
-        return {"totalRequests":self.totalRequests,"cacheHits":self.cacheHits,"cacheMiss":self.cacheMiss}
+        return {"totalRequests":self.totalRequests,"cacheHits":self.cacheHits,"cacheMiss":self.cacheMiss, "LEASTLOADEDCALLS":self.LEASTLOADEDCALLS}
 
     def getLoad(self, worker_id, timestamp):
         workerNodes = self.workers
@@ -42,16 +44,17 @@ class PaSch:
 
 
     def getLeastLoadedWorker(self,timestamp):
-            #uses all keys in consistent Hash and gets min loaded
-            min_worker_id =""
-            min_worker_id_load = math.inf
-            for i in range(0,len(self.workers)) :
-                curr_load = self.getLoad(self.workers[i].worker_id,timestamp)
-                if(min_worker_id_load > curr_load) :
-                    min_worker_id_load = curr_load
-                    min_worker_id = self.workers[i].worker_id
-            
-            return min_worker_id
+        self.LEASTLOADEDCALLS += 1
+        #uses all keys in consistent Hash and gets min loaded
+        min_worker_id =""
+        min_worker_id_load = math.inf
+        for i in range(0,len(self.workers)) :
+            curr_load = self.getLoad(self.workers[i].worker_id,timestamp)
+            if(min_worker_id_load > curr_load) :
+                min_worker_id_load = curr_load
+                min_worker_id = self.workers[i].worker_id
+        
+        return min_worker_id
 
     def getWorkerDetails(self,timestamp):
         oldWorkerNodes = self.workers
