@@ -1,4 +1,5 @@
 import json
+from matplotlib import pyplot as plt
 import statistics
 from statistics import mean
 
@@ -6,7 +7,6 @@ from worker import Worker
 from function import Function
 from package import Package
 from paSch import PaSch
-from matplotlib import pyplot as plt
 
 def main():
 
@@ -117,8 +117,8 @@ def main():
         fn_execution = pkgs["functions"]
 
 
-        CDF_calculation_time = []
-        CDF_calculation_variable = []
+        CV_calculation_time = []
+        CV_calculation_variable = []
 
         CHR_calculation_time = []
         CHR_calculation_variable = []
@@ -139,8 +139,8 @@ def main():
             sd_of_list = statistics.pstdev(new_list_of_workers)
             mean_of_list = mean(new_list_of_workers)
 
-            CDF_calculation_time.append(curr_time)
-            CDF_calculation_variable.append(sd_of_list/mean_of_list)
+            CV_calculation_time.append(curr_time)
+            CV_calculation_variable.append(sd_of_list/mean_of_list)
             
             CHR_calculation_time.append(curr_time)
             cacheObj = scheduler.getCacheHitAndMissDetails()
@@ -148,12 +148,12 @@ def main():
 
         
         print("FINAL CACHE HITS/MISS DETAILS:",scheduler.getCacheHitAndMissDetails())
-        # print(scheduler.getWorkerDetails(fn_execution[-1]["timestamp"]))
-        plt.plot(CDF_calculation_time,CDF_calculation_variable)
-        plt.title('CDF calculation')
+        print(scheduler.getWorkerDetails(fn_execution[-1]["timestamp"]))
+        plt.plot(CV_calculation_time,CV_calculation_variable)
+        plt.title('CV calculation')
         plt.xlabel('Time')
-        plt.ylabel('CDF value')
-        plt.savefig('CDF.png')
+        plt.ylabel('CV value')
+        plt.savefig('CV.png')
 
         
         plt.figure()
@@ -170,9 +170,9 @@ def main():
             json.dump(dict, outfile)
         
         dict = {}
-        dict["time"] = CDF_calculation_time
-        dict["cdf"] = CDF_calculation_variable 
-        with open("cdf.json", "w") as outfile:
+        dict["time"] = CV_calculation_time
+        dict["cv"] = CV_calculation_variable 
+        with open("cv.json", "w") as outfile:
             json.dump(dict, outfile)
 
         dict = {}

@@ -1,14 +1,6 @@
-#it will also have consistentHash, and will use it to access worker_id (consitentHash <-> workers)
-
 import math
-
-import string
-
-from requests import delete
 from consistentHash import ConsistentHash
 from GLOBAL import *
-from function import Function
-from worker import Worker
 
 class PaSch:
     # workers: Worker[], functions : Function[], packages : Package[]
@@ -45,7 +37,6 @@ class PaSch:
 
     def getLeastLoadedWorker(self,timestamp):
         self.LEASTLOADEDCALLS += 1
-        #uses all keys in consistent Hash and gets min loaded
         min_worker_id =""
         min_worker_id_load = math.inf
         for i in range(0,len(self.workers)) :
@@ -80,8 +71,7 @@ class PaSch:
             #updates current Load
             workerNodes[i].currentLoad = self.getLoad(workerNodes[i].worker_id,timestamp)
             # updates runningFunctions -> they are updated automatically when getLoad is called
-            # DO :updates lastExecutedTime
-            # {pid,time}
+            # updates lastExecutedTime {pid,time}
             newLastExecutedTime = {}
             for key in workerNodes[i].lastExecutedTime :
                 if(workerNodes[i].lastExecutedTime[key] + cacheCleanTime > timestamp) :
@@ -98,7 +88,6 @@ class PaSch:
 
     def getIndexInWorkersArray(self,worker_id):
         for i in range(0,len(self.workers)) :
-            # print(self.workers[i])
             if(self.workers[i].worker_id == worker_id):
                 return i
 
@@ -113,15 +102,12 @@ class PaSch:
                 return i
 
     def addWorker(self,worker) :
-        # print("previous workers in total were :",len(self.workers))
         workerNodes = self.workers
         workerNodes.append(worker)
         self.workers = workerNodes #added in PasCh
         self.consitentHash.addWorker(worker.worker_id) #added in Consistent hash
-        # print("total workers are now :".len(self.workers))
     
     def removeWorker(self,worker_id) :
-        print("previous workers in total were :",len(self.workers))
         workerNodes = self.workers
         newWorkerNodes = []
         for x in workerNodes:
@@ -130,15 +116,12 @@ class PaSch:
         
         self.workers = newWorkerNodes #added in PasCh
         self.consitentHash.removeWorker(worker_id) #added in Consistent hash
-        print("total workers are now :",len(self.workers))
 
     def assignWorker(self,function_id,timestamp):
-        
-        workerNodes = self.workers
+        old_workerNodes = self.workers
+        workerNodes = self.updateStaleWorkerData(old_workerNodes, timestamp)
         self.totalRequests = self.totalRequests + 1
 
-        # if(len(workerNodes) == 0):
-        #     return {"there are no worker nodes", None}
 
         function_object = self.functions[self.getIndexInFunctionsArray(function_id)]
 
@@ -153,6 +136,7 @@ class PaSch:
         err1,selectedWorker1 = self.consitentHash.getWorker(pkg)
         err2,selectedWorker2 = self.consitentHash.getWorker(pkg+self.salt)
         # print("Selected workers for function,",function_id,"are :",selectedWorker1,selectedWorker2)
+
 
         load_1 = self.getLoad(selectedWorker1,timestamp)
         load_2 = self.getLoad(selectedWorker2,timestamp)
