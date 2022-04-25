@@ -148,7 +148,7 @@ def main():
 
         
         print("FINAL CACHE HITS/MISS DETAILS:",scheduler.getCacheHitAndMissDetails())
-        print(scheduler.getWorkerDetails(fn_execution[-1]["timestamp"]))
+        # print(scheduler.getWorkerDetails(fn_execution[-1]["timestamp"]))
         plt.plot(CV_calculation_time,CV_calculation_variable)
         plt.title('CV calculation')
         plt.xlabel('Time')
